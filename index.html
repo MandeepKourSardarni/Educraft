@@ -1,410 +1,375 @@
-import { useState, useEffect } from "react";
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EduCraft Activity Hub</title>
 
-const GRADES = [
-  { label:"JK", full:"Junior Kindergarten", age:"Age 4", emoji:"🌱", c:"#ff6b9d" },
-  { label:"SK", full:"Senior Kindergarten", age:"Age 5", emoji:"🌼", c:"#ff9f43" },
-  { label:"Gr 1", full:"Grade 1", age:"Age 6", emoji:"⭐", c:"#ffd32a" },
-  { label:"Gr 2", full:"Grade 2", age:"Age 7", emoji:"🌟", c:"#0be881" },
-  { label:"Gr 3", full:"Grade 3", age:"Age 8", emoji:"🎯", c:"#00d2d3" },
-  { label:"Gr 4", full:"Grade 4", age:"Age 9", emoji:"🚀", c:"#54a0ff" },
-  { label:"Gr 5", full:"Grade 5", age:"Age 10", emoji:"🔬", c:"#5f27cd" },
-  { label:"Gr 6", full:"Grade 6", age:"Age 11", emoji:"🎨", c:"#ee5a24" },
-  { label:"Gr 7", full:"Grade 7", age:"Age 12", emoji:"💡", c:"#10ac84" },
-  { label:"Gr 8", full:"Grade 8", age:"Age 13", emoji:"🏆", c:"#e84393" },
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+
+  <style>
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:'Nunito',sans-serif;
+      background:linear-gradient(-45deg,#0f0c29,#302b63,#24243e,#1a1a2e,#12002e,#0d1b4b);
+      background-size:400% 400%;
+      animation:bgShift 18s ease infinite;
+      padding:24px 18px;
+      color:white;
+    }
+
+    @keyframes bgShift{
+      0%,100%{background-position:0% 50%}
+      50%{background-position:100% 50%}
+    }
+
+    @keyframes floatY{
+      0%,100%{transform:translateY(0)}
+      50%{transform:translateY(-10px)}
+    }
+
+    .header{text-align:center;margin-bottom:32px}
+
+    .logo{
+      font-size:58px;
+      animation:floatY 3s ease-in-out infinite;
+      margin-bottom:8px;
+    }
+
+    h1{
+      font-family:'Fredoka One',cursive;
+      font-size:38px;
+      margin:0 0 6px;
+      background:linear-gradient(135deg,#54a0ff,#ff6b9d,#ffd32a,#0be881);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+    }
+
+    .panel{
+      background:rgba(255,255,255,0.07);
+      backdrop-filter:blur(16px);
+      border:1px solid rgba(255,255,255,0.15);
+      border-radius:20px;
+      padding:22px 24px;
+      margin-bottom:18px;
+      box-shadow:0 8px 40px rgba(0,0,0,.3);
+    }
+
+    .label{
+      font-family:'Fredoka One',cursive;
+      font-size:17px;
+      margin-bottom:14px;
+      display:block;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(110px,1fr));
+      gap:10px;
+    }
+
+    button{
+      border-radius:16px;
+      border:2px solid rgba(255,255,255,.15);
+      background:rgba(255,255,255,.05);
+      color:white;
+      padding:14px 10px;
+      cursor:pointer;
+      font-family:'Nunito',sans-serif;
+      font-weight:800;
+      transition:.2s;
+    }
+
+    button:hover{
+      transform:translateY(-3px) scale(1.03);
+    }
+
+    button.selected{
+      border-color:#ff6b9d;
+      background:linear-gradient(135deg,#ff6b9d44,#54a0ff66);
+      box-shadow:0 0 20px #ff6b9d77;
+    }
+
+    .generate{
+      display:block;
+      margin:26px auto;
+      padding:17px 52px;
+      border-radius:60px;
+      border:none;
+      font-size:18px;
+      font-family:'Fredoka One',cursive;
+      background:linear-gradient(135deg,#667eea,#f093fb,#54a0ff);
+      box-shadow:0 10px 40px rgba(102,126,234,.6);
+    }
+
+    .cards{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+      gap:18px;
+      margin-top:24px;
+    }
+
+    .card{
+      background:rgba(255,255,255,.07);
+      backdrop-filter:blur(20px);
+      border-radius:20px;
+      padding:22px;
+      border:1px solid rgba(255,255,255,.18);
+      border-top:4px solid #54a0ff;
+      box-shadow:0 8px 32px rgba(0,0,0,.2);
+    }
+
+    .card h3{
+      font-family:'Fredoka One',cursive;
+      margin:8px 0;
+      font-size:18px;
+    }
+
+    .tag{
+      display:inline-block;
+      background:rgba(84,160,255,.25);
+      padding:4px 10px;
+      border-radius:20px;
+      font-size:11px;
+      margin:4px;
+      font-weight:700;
+    }
+
+    .print{
+      width:100%;
+      margin-top:14px;
+      background:linear-gradient(135deg,#54a0ff,#667eea);
+      border:none;
+    }
+
+    .footer{
+      text-align:center;
+      margin-top:32px;
+      color:rgba(255,255,255,.35);
+      font-size:12px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="header">
+    <div class="logo">🎨</div>
+    <h1>EduCraft Activity Hub</h1>
+    <p>🍁 Canadian K–8 Printable Activities for Educators</p>
+    <p>Public · Private · Catholic Schools</p>
+  </div>
+
+  <div class="panel">
+    <span class="label">🏫 Step 1 — School Type</span>
+    <div class="grid" id="schools"></div>
+  </div>
+
+  <div class="panel">
+    <span class="label">📚 Step 2 — Grade Level</span>
+    <div class="grid" id="grades"></div>
+  </div>
+
+  <div class="panel">
+    <span class="label">📅 Step 3 — Month</span>
+    <div class="grid" id="months"></div>
+  </div>
+
+  <button class="generate" onclick="generateActivities()">✨ Generate Activities</button>
+
+  <div id="results"></div>
+
+  <div class="footer">
+    EduCraft Activity Hub · Canadian Academic Year 🍁
+  </div>
+
+<script>
+const schools = ["Public 🏫", "Private 🎓", "Catholic ✝️"];
+
+const grades = [
+  "JK 🌱", "SK 🌼", "Grade 1 ⭐", "Grade 2 🌟", "Grade 3 🎯",
+  "Grade 4 🚀", "Grade 5 🔬", "Grade 6 🎨", "Grade 7 💡", "Grade 8 🏆"
 ];
 
-const SCHOOL_TYPES = [
-  { label:"Public",  emoji:"🏫", desc:"Provincial Curriculum",  c:"#54a0ff" },
-  { label:"Private", emoji:"🎓", desc:"Enhanced & Enriched",   c:"#5f27cd" },
-  { label:"Catholic",emoji:"✝️", desc:"Faith-Integrated",       c:"#ff9f43" },
+const months = [
+  "September 🍂", "October 🎃", "November 🍁", "December ❄️",
+  "January ☃️", "February 💝", "March 🌬️", "April 🌧️",
+  "May 🌸", "June ☀️"
 ];
 
-const MONTHS = [
-  { label:"September", emoji:"🍂", season:"Fall" },
-  { label:"October",   emoji:"🎃", season:"Fall" },
-  { label:"November",  emoji:"🍁", season:"Fall" },
-  { label:"December",  emoji:"❄️",  season:"Winter" },
-  { label:"January",   emoji:"☃️",  season:"Winter" },
-  { label:"February",  emoji:"💝",  season:"Winter" },
-  { label:"March",     emoji:"🌬️",  season:"Spring" },
-  { label:"April",     emoji:"🌧️",  season:"Spring" },
-  { label:"May",       emoji:"🌸",  season:"Spring" },
-  { label:"June",      emoji:"☀️",  season:"Year End" },
-];
+let selectedSchool = "";
+let selectedGrade = "";
+let selectedMonth = "";
 
-const SUBJ_C = {
-  Science:"#00d2d3", Art:"#ff6b9d", Math:"#54a0ff", "Social Studies":"#ff9f43",
-  "Language Arts":"#5f27cd", Religion:"#ee5a24", STEM:"#0be881",
-  Health:"#ff4757", Geography:"#10ac84", Music:"#e84393", Drama:"#ffd32a",
-};
-const sc = s => SUBJ_C[s] || "#54a0ff";
-const stars = n => "⭐".repeat(Math.max(1,Math.min(3,n||1))) + "☆".repeat(3-Math.max(1,Math.min(3,n||1)));
+function makeButtons(list, containerId, type){
+  const container = document.getElementById(containerId);
 
-export default function App() {
-  const [school, setSchool] = useState(null);
-  const [grade,  setGrade]  = useState(null);
-  const [month,  setMonth]  = useState(null);
-  const [activities, setActs]  = useState([]);
-  const [loading, setLoading]  = useState(false);
-  const [printLoading, setPL]  = useState(null);
-  const [usedTopics, setUsed]  = useState([]);
-  const [error, setError]      = useState(null);
-  const [genCount, setGenCount]= useState(0);
+  list.forEach(item=>{
+    const btn = document.createElement("button");
+    btn.innerHTML = item;
 
-  useEffect(() => {
-    const l = document.createElement("link");
-    l.href = "https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap";
-    l.rel = "stylesheet"; document.head.appendChild(l);
-    const s = document.createElement("style");
-    s.textContent = `
-      *{box-sizing:border-box}
-      body{margin:0;background:#0f0c29}
-      @keyframes bgShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
-      @keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-      @keyframes popIn{from{opacity:0;transform:scale(.85) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
-      @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
-      @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(84,160,255,.5)}70%{box-shadow:0 0 0 12px rgba(84,160,255,0)}}
-      .act-card{transition:transform .15s ease,box-shadow .15s ease;animation:popIn .45s ease both;transform-style:preserve-3d;will-change:transform}
-      .gen-btn{transition:all .2s ease}
-      .gen-btn:hover:not(:disabled){transform:translateY(-3px) scale(1.03)!important;filter:brightness(1.08)}
-      .gen-btn:active:not(:disabled){transform:translateY(1px) scale(.97)!important}
-      .school-btn,.grade-btn,.month-btn{transition:all .18s ease}
-      .school-btn:hover,.grade-btn:hover,.month-btn:hover{transform:translateY(-3px) scale(1.04)}
-    `;
-    document.head.appendChild(s);
-  }, []);
+    btn.onclick = () => {
+      [...container.children].forEach(b=>b.classList.remove("selected"));
+      btn.classList.add("selected");
 
-  const tilt = e => {
-    const el = e.currentTarget;
-    const r = el.getBoundingClientRect();
-    const rx = -((e.clientY - r.top  - r.height/2) / (r.height/2)) * 7;
-    const ry =  ((e.clientX - r.left - r.width /2) / (r.width /2)) * 7;
-    el.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateZ(12px)`;
-    el.style.boxShadow = `${-ry*2}px ${rx*2}px 40px rgba(0,0,0,.25), 0 20px 50px rgba(0,0,0,.2)`;
-  };
-  const untilt = e => {
-    e.currentTarget.style.transform = "perspective(900px) rotateX(0) rotateY(0) translateZ(0)";
-    e.currentTarget.style.boxShadow = "0 8px 32px rgba(0,0,0,.12)";
-  };
+      if(type==="school") selectedSchool = item;
+      if(type==="grade") selectedGrade = item;
+      if(type==="month") selectedMonth = item;
+    };
 
-  const callClaude = async prompt => {
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({
-        model:"claude-sonnet-4-20250514",
-        max_tokens:2000,
-        messages:[{role:"user",content:prompt}]
-      })
-    });
-    if(!res.ok){ const e=await res.json(); throw new Error(e.error?.message||`HTTP ${res.status}`); }
-    const data = await res.json();
-    if(data.error) throw new Error(data.error.message);
-    const text = data.content.map(b=>b.text||"").join("");
-    const clean = text.replace(/```json|```/gi,"").trim();
-    const arrMatch = clean.match(/\[[\s\S]*\]/);
-    const objMatch = clean.match(/\{[\s\S]*\}/);
-    if(arrMatch) return JSON.parse(arrMatch[0]);
-    if(objMatch) return JSON.parse(objMatch[0]);
-    throw new Error("Could not parse response");
-  };
-
-  const generate = async () => {
-    if(!school||!grade||!month) return;
-    setLoading(true); setError(null);
-    const gi = GRADES.find(g=>g.label===grade);
-    const avoid = usedTopics.length ? `\nIMPORTANT — do NOT reuse these topics: ${usedTopics.join(", ")}. New activities must be clearly different projects.` : "";
-    const prompt = `You are a Canadian elementary curriculum expert creating hands-on printable craft activities.
-
-Generate exactly 6 UNIQUE educational activity/craft ideas:
-- School: ${school} (${SCHOOL_TYPES.find(s=>s.label===school)?.desc})
-- Grade: ${gi?.full} (${gi?.age})
-- Month: ${month} (Canada academic year Sep–Jun)
-${avoid}
-
-Rules:
-- Hands-on printable crafts: paper cutouts, 3D models, art collages, science builds, diagrams
-- Age-appropriate, Canadian curriculum aligned, seasonally relevant
-- Mix of subjects: Science, Art, Math, Social Studies, Language Arts${school==="Catholic"?", Religion":""}
-- Each activity must feel like a DIFFERENT kind of project
-${school==="Catholic"?"- Naturally weave in Catholic values or faith connections":""}
-- Include Indigenous Canadian content respectfully in at least 1 activity
-
-Return ONLY a raw JSON array — no markdown, no explanation, no code fences:
-[{"title":"","subject":"","emoji":"","description":"2 sentences: what kids make + what they learn","materials":["","",""],"difficulty":2,"duration":"45 min","canadianLink":"brief Ontario/Canadian curriculum tie-in"}]`;
-
-    try {
-      const parsed = await callClaude(prompt);
-      if(!Array.isArray(parsed)) throw new Error("Expected array");
-      setActs(parsed);
-      setUsed(p=>[...p,...parsed.map(a=>a.title)]);
-      setGenCount(c=>c+1);
-    } catch(e) {
-      setError(`Generation failed: ${e.message}. Please try again.`);
-      console.error(e);
-    } finally { setLoading(false); }
-  };
-
-  const printSheet = async act => {
-    setPL(act.title);
-    const gi = GRADES.find(g=>g.label===grade);
-    const prompt = `Create a detailed printable classroom activity sheet as raw JSON only (no markdown, no code fences):
-Activity: ${act.title} | Grade: ${gi?.full} (${gi?.age}) | Month: ${month} | School: ${school}
-Description: ${act.description} | Materials: ${act.materials?.join(", ")}
-
-{"title":"","subtitle":"grade + subject + month","objective":"1-sentence learning goal","materials":[""],"steps":[{"step":1,"title":"","instruction":"clear child-friendly instruction"}],"cutoutGuide":"describe cut-out shapes needed OR write 'No cutouts needed'","funFact":"fascinating educational fact","extensionActivity":"bonus challenge for fast finishers","curriculumNote":"Canadian provincial curriculum connection"}
-
-Include 5–7 steps. Keep language simple and encouraging for kids.`;
-    try {
-      const sheet = await callClaude(prompt);
-      const win = window.open("","_blank");
-      if(!win){ alert("Allow pop-ups to view the printable sheet!"); return; }
-      win.document.write(buildPrint(sheet, act, gi));
-      win.document.close();
-    } catch(e) { alert("Couldn't build printable. Try again!"); }
-    finally { setPL(null); }
-  };
-
-  const buildPrint = (s, act, gi) => {
-    const c = sc(act.subject);
-    return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${s.title||act.title}</title>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
-<style>
-@media print{.noprint{display:none}@page{margin:12mm}}
-*{box-sizing:border-box}body{font-family:'Nunito',sans-serif;max-width:720px;margin:0 auto;padding:24px;background:#fff;color:#1a1a2e}
-.printbtn{background:${c};color:#fff;border:none;padding:13px 32px;border-radius:50px;font-size:15px;font-weight:800;cursor:pointer;display:block;margin:0 auto 24px;font-family:'Nunito',sans-serif;box-shadow:0 6px 20px ${c}55}
-.hdr{background:linear-gradient(135deg,${c}22,${c}44);border:2px solid ${c}66;padding:24px;border-radius:18px;margin-bottom:20px;text-align:center}
-.hdr h1{font-family:'Fredoka One',cursive;font-size:28px;margin:0 0 6px;color:#1a1a2e} .hdr p{margin:0;font-size:13px;color:#555}
-.box{background:#f8f9ff;border-left:5px solid ${c};padding:14px 18px;margin:14px 0;border-radius:0 12px 12px 0}
-.box h3{color:${c};margin:0 0 10px;font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:.5px}
-.step{display:flex;gap:12px;margin:10px 0;align-items:flex-start}
-.sn{background:${c};color:#fff;border-radius:50%;width:28px;height:28px;min-width:28px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px}
-.mat{display:flex;flex-wrap:wrap;gap:7px}.mtag{background:${c}22;border:1.5px dashed ${c};padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;color:#1a1a2e}
-.cut{border:3px dashed #e91e63;padding:14px;border-radius:12px;text-align:center;margin:14px 0;font-weight:700}
-.fact{background:#fffbe0;border:2px solid #ffd32a;padding:14px;border-radius:12px;font-size:14px}
-.foot{text-align:center;margin-top:24px;font-size:11px;color:#aaa}
-</style></head><body>
-<button class="noprint printbtn" onclick="window.print()">🖨️ Print / Save as PDF</button>
-<div class="hdr"><h1>${act.emoji} ${s.title||act.title}</h1><p>${s.subtitle||""} &nbsp;·&nbsp; ⏱ ${act.duration} &nbsp;·&nbsp; ${stars(act.difficulty)}</p></div>
-<div class="box"><h3>🎯 Learning Objective</h3><p>${s.objective||""}</p></div>
-<div class="box"><h3>🛒 Materials Needed</h3><div class="mat">${(s.materials||act.materials||[]).map(m=>`<span class="mtag">✓ ${m}</span>`).join("")}</div></div>
-<div class="box"><h3>📋 Step-by-Step Instructions</h3>${(s.steps||[]).map(st=>`<div class="step"><div class="sn">${st.step}</div><div><strong>${st.title}</strong><br/><span style="font-size:13px">${st.instruction}</span></div></div>`).join("")}</div>
-${s.cutoutGuide&&s.cutoutGuide!=="No cutouts needed"?`<div class="cut">✂️ <strong>Cut-Out Guide:</strong><br/>${s.cutoutGuide}</div>`:""}
-<div class="fact">💡 <strong>Fun Fact!</strong> ${s.funFact||""}</div>
-<div class="box"><h3>🚀 Bonus Challenge</h3><p>${s.extensionActivity||""}</p></div>
-<div class="box"><h3>🍁 Canadian Curriculum Connection</h3><p>${s.curriculumNote||""}</p></div>
-<div class="foot">EduCraft Activity Hub &nbsp;·&nbsp; Canadian Academic Year &nbsp;·&nbsp; ${grade} · ${month}</div>
-</body></html>`;
-  };
-
-  const canGen = school && grade && month;
-
-  const panelStyle = {
-    background:"rgba(255,255,255,0.07)",
-    backdropFilter:"blur(16px)",
-    border:"1px solid rgba(255,255,255,0.15)",
-    borderRadius:20,
-    padding:"22px 24px",
-    marginBottom:18,
-    boxShadow:"0 8px 40px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1)"
-  };
-  const labelStyle = {
-    fontFamily:"'Fredoka One', cursive",
-    fontSize:17,
-    color:"#fff",
-    marginBottom:14,
-    letterSpacing:.5,
-    display:"block"
-  };
-
-  return (
-    <div style={{
-      minHeight:"100vh",
-      background:"linear-gradient(-45deg,#0f0c29,#302b63,#24243e,#1a1a2e,#12002e,#0d1b4b)",
-      backgroundSize:"400% 400%",
-      animation:"bgShift 18s ease infinite",
-      padding:"24px 18px",
-      fontFamily:"'Nunito',sans-serif"
-    }}>
-      {/* Header */}
-      <div style={{textAlign:"center",marginBottom:32}}>
-        <div style={{fontSize:58,animation:"floatY 3s ease-in-out infinite",display:"block",marginBottom:8}}>🎨</div>
-        <h1 style={{
-          fontFamily:"'Fredoka One',cursive",
-          fontSize:38,
-          margin:"0 0 6px",
-          background:"linear-gradient(135deg,#54a0ff,#ff6b9d,#ffd32a,#0be881)",
-          WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",
-          backgroundClip:"text",
-          filter:"drop-shadow(0 2px 8px rgba(84,160,255,.4))",
-          letterSpacing:1
-        }}>EduCraft Activity Hub</h1>
-        <p style={{color:"rgba(255,255,255,.65)",margin:"0 0 4px",fontSize:14,fontWeight:600}}>🍁 Canadian K–8 Printable Activities for Educators</p>
-        <p style={{color:"rgba(255,255,255,.4)",margin:0,fontSize:12}}>Public · Private · Catholic Schools</p>
-      </div>
-
-      {/* Step 1 — School Type */}
-      <div style={panelStyle}>
-        <span style={labelStyle}>🏫 Step 1 — School Type</span>
-        <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
-          {SCHOOL_TYPES.map(s=>{
-            const sel = school===s.label;
-            return (
-              <button key={s.label} className="school-btn" onClick={()=>setSchool(s.label)} style={{
-                flex:1,minWidth:110,padding:"14px 12px",borderRadius:16,
-                border:`2px solid ${sel?s.c:"rgba(255,255,255,.15)"}`,
-                background:sel?`linear-gradient(135deg,${s.c}33,${s.c}55)`:"rgba(255,255,255,.05)",
-                color:"#fff",cursor:"pointer",fontFamily:"'Nunito',sans-serif",fontWeight:700,
-                boxShadow:sel?`0 0 24px ${s.c}66,0 8px 20px rgba(0,0,0,.3)`:"0 4px 12px rgba(0,0,0,.2)",
-                textAlign:"center"
-              }}>
-                <div style={{fontSize:28,marginBottom:4}}>{s.emoji}</div>
-                <div style={{fontSize:14}}>{s.label}</div>
-                <div style={{fontSize:10,opacity:.7,marginTop:2}}>{s.desc}</div>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Step 2 — Grade */}
-      <div style={panelStyle}>
-        <span style={labelStyle}>📚 Step 2 — Grade Level</span>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:8}}>
-          {GRADES.map(g=>{
-            const sel = grade===g.label;
-            return (
-              <button key={g.label} className="grade-btn" onClick={()=>setGrade(g.label)} style={{
-                padding:"10px 4px",borderRadius:14,
-                border:`2px solid ${sel?g.c:"rgba(255,255,255,.12)"}`,
-                background:sel?`linear-gradient(135deg,${g.c}44,${g.c}77)`:"rgba(255,255,255,.05)",
-                color:"#fff",cursor:"pointer",fontFamily:"'Nunito',sans-serif",fontWeight:800,
-                fontSize:12,textAlign:"center",
-                boxShadow:sel?`0 0 18px ${g.c}77,0 6px 16px rgba(0,0,0,.3)`:"0 3px 10px rgba(0,0,0,.2)"
-              }}>
-                <div style={{fontSize:20}}>{g.emoji}</div>
-                <div>{g.label}</div>
-                <div style={{fontSize:9,opacity:.65,fontWeight:600}}>{g.age}</div>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Step 3 — Month */}
-      <div style={panelStyle}>
-        <span style={labelStyle}>📅 Step 3 — Month</span>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:8}}>
-          {MONTHS.map(m=>{
-            const sel = month===m.label;
-            return (
-              <button key={m.label} className="month-btn" onClick={()=>setMonth(m.label)} style={{
-                padding:"10px 4px",borderRadius:14,
-                border:`2px solid ${sel?"#ff6b9d":"rgba(255,255,255,.12)"}`,
-                background:sel?"linear-gradient(135deg,#ff6b9d44,#f093fb66)":"rgba(255,255,255,.05)",
-                color:"#fff",cursor:"pointer",fontFamily:"'Nunito',sans-serif",fontWeight:700,
-                fontSize:11,textAlign:"center",
-                boxShadow:sel?"0 0 18px #ff6b9d77,0 6px 16px rgba(0,0,0,.3)":"0 3px 10px rgba(0,0,0,.2)"
-              }}>
-                <div style={{fontSize:18}}>{m.emoji}</div>
-                <div>{m.label}</div>
-                <div style={{fontSize:9,opacity:.6,fontWeight:600}}>{m.season}</div>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Generate Button */}
-      <div style={{textAlign:"center",marginBottom:28}}>
-        <button className="gen-btn" onClick={generate} disabled={!canGen||loading} style={{
-          padding:"17px 52px",borderRadius:60,border:"none",fontSize:18,
-          fontFamily:"'Fredoka One',cursive",letterSpacing:.5,
-          background:canGen
-            ?"linear-gradient(135deg,#667eea,#f093fb,#54a0ff)"
-            :"rgba(255,255,255,.15)",
-          color:"#fff",cursor:canGen?"pointer":"not-allowed",
-          boxShadow:canGen?"0 10px 40px rgba(102,126,234,.6),0 4px 15px rgba(240,147,251,.4)":"none",
-          opacity:canGen?1:.5
-        }}>
-          {loading?"✨ Generating magic…":genCount>0?"🔄 Fresh Activities (No Repeats!)":"✨ Generate Activities!"}
-        </button>
-        {!canGen&&<p style={{color:"rgba(255,255,255,.35)",fontSize:12,marginTop:10,fontWeight:600}}>Select school type, grade & month to unlock</p>}
-        {usedTopics.length>0&&<p style={{color:"rgba(100,200,255,.7)",fontSize:12,marginTop:10,fontWeight:700}}>
-          📝 {usedTopics.length} activities generated — every new batch covers fresh topics!
-        </p>}
-        {loading&&<div style={{marginTop:16,display:"flex",justifyContent:"center",gap:8}}>
-          {["Consulting the curriculum…","Crafting ideas…","Adding Canadian flair 🍁"].map((t,i)=>(
-            <span key={i} style={{background:"rgba(255,255,255,.08)",color:"rgba(255,255,255,.6)",padding:"5px 12px",borderRadius:20,fontSize:11,fontWeight:600}}>{t}</span>
-          ))}
-        </div>}
-      </div>
-
-      {/* Error */}
-      {error&&<div style={{background:"rgba(255,71,87,.15)",border:"1px solid rgba(255,71,87,.4)",borderRadius:14,padding:14,marginBottom:18,color:"#ff6b81",textAlign:"center",fontSize:13,fontWeight:700}}>{error}</div>}
-
-      {/* Activity Cards */}
-      {activities.length>0&&(
-        <div>
-          <h2 style={{textAlign:"center",fontFamily:"'Fredoka One',cursive",fontSize:22,color:"#fff",margin:"0 0 20px",letterSpacing:.5}}>
-            🎉 {grade} · {month} · {school} School
-          </h2>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(300px,1fr))",gap:18}}>
-            {activities.map((a,i)=>{
-              const color = sc(a.subject);
-              const isPrinting = printLoading===a.title;
-              return (
-                <div key={i} className="act-card"
-                  onMouseMove={tilt} onMouseLeave={untilt}
-                  style={{
-                    background:"rgba(255,255,255,.06)",
-                    backdropFilter:"blur(20px)",
-                    borderRadius:20,
-                    padding:22,
-                    border:`1px solid ${color}44`,
-                    borderTop:`4px solid ${color}`,
-                    boxShadow:"0 8px 32px rgba(0,0,0,.12)",
-                    animationDelay:`${i*.07}s`,
-                    display:"flex",flexDirection:"column"
-                  }}>
-                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:12}}>
-                    <span style={{fontSize:40,filter:`drop-shadow(0 2px 8px ${color}88)`}}>{a.emoji||"🎨"}</span>
-                    <span style={{background:`${color}33`,color:"#fff",border:`1px solid ${color}66`,padding:"3px 11px",borderRadius:20,fontSize:11,fontWeight:800,letterSpacing:.5}}>{a.subject}</span>
-                  </div>
-                  <h3 style={{fontFamily:"'Fredoka One',cursive",fontSize:17,margin:"0 0 8px",color:"#fff",letterSpacing:.3}}>{a.title}</h3>
-                  <p style={{fontSize:12.5,color:"rgba(255,255,255,.7)",margin:"0 0 12px",lineHeight:1.6,flex:1}}>{a.description}</p>
-                  <div style={{display:"flex",flexWrap:"wrap",gap:5,marginBottom:10}}>
-                    {(a.materials||[]).map((m,mi)=>(
-                      <span key={mi} style={{background:`${color}22`,color:"rgba(255,255,255,.8)",border:`1px solid ${color}44`,padding:"2px 9px",borderRadius:20,fontSize:10,fontWeight:700}}>✓ {m}</span>
-                    ))}
-                  </div>
-                  <div style={{display:"flex",justifyContent:"space-between",fontSize:11,color:"rgba(255,255,255,.45)",marginBottom:10,fontWeight:700}}>
-                    <span>{stars(a.difficulty)}</span>
-                    <span>⏱ {a.duration}</span>
-                  </div>
-                  {a.canadianLink&&<p style={{fontSize:10.5,color:`${color}cc`,background:`${color}18`,border:`1px solid ${color}33`,padding:"7px 10px",borderRadius:10,margin:"0 0 14px",fontStyle:"italic",fontWeight:700}}>
-                    🍁 {a.canadianLink}
-                  </p>}
-                  <button onClick={()=>printSheet(a)} disabled={isPrinting} style={{
-                    width:"100%",padding:"11px 0",borderRadius:12,border:"none",
-                    background:isPrinting?"rgba(255,255,255,.1)":`linear-gradient(135deg,${color}cc,${color})`,
-                    color:"#fff",cursor:isPrinting?"not-allowed":"pointer",
-                    fontFamily:"'Nunito',sans-serif",fontWeight:800,fontSize:13,
-                    boxShadow:isPrinting?"none":`0 4px 18px ${color}55`,
-                    transition:"all .2s"
-                  }}>
-                    {isPrinting?"📄 Building Sheet…":"🖨️ Generate Printable Sheet"}
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      <div style={{textAlign:"center",marginTop:32,color:"rgba(255,255,255,.2)",fontSize:11,fontWeight:600}}>
-        EduCraft Activity Hub · Canadian Academic Year · Powered by Claude AI 🍁
-      </div>
-    </div>
-  );
+    container.appendChild(btn);
+  });
 }
+
+makeButtons(schools, "schools", "school");
+makeButtons(grades, "grades", "grade");
+makeButtons(months, "months", "month");
+
+const activityBank = [
+  {
+    emoji:"🌸",
+    title:"Mother’s Day Kindness Flower",
+    subject:"Art / Language",
+    desc:"Children make a colourful paper flower and write one kind sentence on each petal. They learn gratitude, writing, and emotional expression.",
+    materials:["paper", "crayons", "scissors", "glue"]
+  },
+  {
+    emoji:"☀️",
+    title:"Summer Safety Poster",
+    subject:"Health",
+    desc:"Children create a poster showing sunscreen, water, hats, and safe outdoor play. They learn how to stay safe in summer.",
+    materials:["chart paper", "markers", "stickers"]
+  },
+  {
+    emoji:"🐝",
+    title:"Pollinator Garden Craft",
+    subject:"Science",
+    desc:"Children create bees, butterflies, and flowers using paper cutouts. They learn how pollinators help plants grow.",
+    materials:["construction paper", "glue", "pipe cleaners"]
+  },
+  {
+    emoji:"🍁",
+    title:"Canadian Nature Collage",
+    subject:"Social Studies / Art",
+    desc:"Children make a collage of Canadian animals, trees, lakes, and seasons. They learn about Canada’s natural environment.",
+    materials:["magazines", "paper", "glue", "markers"]
+  },
+  {
+    emoji:"📏",
+    title:"Build-a-Shape City",
+    subject:"Math",
+    desc:"Children use squares, rectangles, triangles, and circles to build a paper city. They learn shapes, counting, and spatial thinking.",
+    materials:["shape cutouts", "glue", "large paper"]
+  },
+  {
+    emoji:"🪶",
+    title:"Respectful Indigenous Pattern Art",
+    subject:"Art / Social Studies",
+    desc:"Children explore simple nature-inspired patterns and create their own artwork respectfully. They learn that Indigenous cultures have deep connections to land and storytelling.",
+    materials:["paper", "crayons", "pattern examples"]
+  }
+];
+
+function generateActivities(){
+  if(!selectedSchool || !selectedGrade || !selectedMonth){
+    alert("Please select school type, grade, and month first.");
+    return;
+  }
+
+  const results = document.getElementById("results");
+
+  results.innerHTML = `
+    <h2 style="text-align:center;font-family:'Fredoka One',cursive;">
+      🎉 ${selectedGrade} · ${selectedMonth} · ${selectedSchool}
+    </h2>
+    <div class="cards">
+      ${activityBank.map(a=>`
+        <div class="card">
+          <div style="font-size:40px">${a.emoji}</div>
+          <span class="tag">${a.subject}</span>
+          <h3>${a.title}</h3>
+          <p>${a.desc}</p>
+          <div>
+            ${a.materials.map(m=>`<span class="tag">✓ ${m}</span>`).join("")}
+          </div>
+          <button class="print" onclick="printActivity('${a.title}', '${a.subject}', '${a.desc}')">
+            🖨️ Print Activity
+          </button>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+function printActivity(title, subject, desc){
+  const win = window.open("", "_blank");
+
+  win.document.write(`
+    <html>
+    <head>
+      <title>${title}</title>
+      <style>
+        body{
+          font-family:Arial;
+          padding:30px;
+          max-width:750px;
+          margin:auto;
+        }
+        h1{color:#302b63}
+        .box{
+          border:2px solid #ddd;
+          padding:18px;
+          border-radius:12px;
+          margin:16px 0;
+        }
+        button{
+          padding:12px 24px;
+          border:none;
+          border-radius:20px;
+          background:#302b63;
+          color:white;
+          font-weight:bold;
+        }
+        @media print{
+          button{display:none}
+        }
+      </style>
+    </head>
+    <body>
+      <button onclick="window.print()">Print / Save as PDF</button>
+      <h1>${title}</h1>
+      <h3>${subject}</h3>
+
+      <div class="box">
+        <h3>Learning Goal</h3>
+        <p>${desc}</p>
+      </div>
+
+      <div class="box">
+        <h3>Steps</h3>
+        <ol>
+          <li>Teacher explains the activity.</li>
+          <li>Children collect materials.</li>
+          <li>Children cut, colour, paste, and decorate.</li>
+          <li>Children share their work with the group.</li>
+          <li>Teacher connects the activity to learning.</li>
+        </ol>
+      </div>
+
+      <div class="box">
+        <h3>Extension</h3>
+        <p>Ask children to explain one thing they learned from the activity.</p>
+      </div>
+    </body>
+    </html>
+  `);
+
+  win.document.close();
+}
+</script>
+
+</body>
+</html>
